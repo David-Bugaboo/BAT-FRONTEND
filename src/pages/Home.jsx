@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { InteractionType } from "@azure/msal-browser";
 import { Game } from "../components/Game";
 import { Unity, useUnityContext } from "react-unity-webgl";
+import useFetchWithMsal from '../hooks/useFetchWithMsal';
 
 /***
  * Component to detail ID token claims with a description for each claim. For more details on ID token claims, please check the following links:
@@ -21,6 +22,9 @@ import { Unity, useUnityContext } from "react-unity-webgl";
  */
 export const Home = () => {
   const { instance } = useMsal();
+  const { error, execute } = useFetchWithMsal({
+    scopes: protectedResources.apiTodoList.scopes.write
+  });
 
   const { unityProvider, sendMessage, isLoaded } = useUnityContext({
     loaderUrl: "/build/Build/BAT.loader.js",
@@ -29,10 +33,16 @@ export const Home = () => {
     codeUrl: "build/Build/BAT.wasm",
   });
 
+
+
   useEffect(() => {
     if (isLoaded) {
+      const params = {
+        accessToken: result.accessToken,
+        baseURL: "https://tiny-puce-cobra-wrap.cyclic.app/api/"
+      }
       console.log(result.accessToken);
-      sendMessage("Login", "Authotization", result.accessToken);
+      sendMessage("Login", "SetApiData", JSON.stringify(params));
     }
   }, [isLoaded]);
 
@@ -46,6 +56,14 @@ export const Home = () => {
     }
   );
 
+  const handleMe = async () => {
+    const res = await execute("GET", "https://tiny-puce-cobra-wrap.cyclic.app/api/me")
+    console.log(res)
+  }
+
+
+
+
   const handleLogoutRedirect = () => {
     instance.logoutRedirect({
       account: instance.getActiveAccount(),
@@ -56,18 +74,15 @@ export const Home = () => {
   };
 
   return (
-    <>
+    <div className="homescreen">
       <AuthenticatedTemplate>
+        <div className="centered-game">
         {activeAccount ? (
           <>
-            <button onClick={handleLogoutRedirect}>
-              Sign out using Redirect
+            <button className="button" onClick={handleLogoutRedirect}>
+              Deslogar
             </button>
-            {result && (
-              <button onClick={() => console.log(result.accessToken)}>
-                logToken
-              </button>
-            )}
+            
             <br />
             <Unity
               unityProvider={unityProvider}
@@ -78,12 +93,17 @@ export const Home = () => {
             />
           </>
         ) : (
-          <button onClick={handleLoginRedirect}>Sign in using Redirect</button>
+          <button onClick={handleLoginRedirect}>Sign in</button>
         )}
+        </div>
+        
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
-        <button onClick={handleLoginRedirect}>Sign in using Redirect</button>
+        <div className="centered-buttons">
+          <img src="/bat_logo.png"/>
+          <button className="button" onClick={handleLoginRedirect}>Login</button>
+        </div>
       </UnauthenticatedTemplate>
-    </>
+    </div>
   );
 };

@@ -41,7 +41,7 @@ const useFetchWithMsal = (msalRequest) => {
         let response = null;
 
         const headers = new Headers();
-        console.log(result.accessToken);
+       
         const bearer = `Bearer ${result.accessToken}`;
         headers.append("Authorization", bearer);
 

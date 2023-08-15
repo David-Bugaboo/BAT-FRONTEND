@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
 import { Nav, Navbar, Dropdown, DropdownButton } from 'react-bootstrap';
-import batlogo from "../assets/bat_logo.png"
+
 import { loginRequest } from '../authConfig';
 import { AccountPicker } from './AccountPicker';
 
