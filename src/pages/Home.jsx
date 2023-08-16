@@ -14,18 +14,23 @@ import { InteractionType } from "@azure/msal-browser";
 import { Game } from "../components/Game";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import useFetchWithMsal from '../hooks/useFetchWithMsal';
+import { BarLoader, PulseLoader } from "react-spinners";
 
 
 export const Home = () => {
   const { instance } = useMsal();
  
 
-  const { unityProvider, sendMessage, isLoaded } = useUnityContext({
+  const { unityProvider, sendMessage, isLoaded, requestFullscreen, loadingProgression } = useUnityContext({
     loaderUrl: "/build/Build/BAT.loader.js",
     dataUrl: "/build/Build/BAT.data",
     frameworkUrl: "build/Build/BAT.framework.js",
     codeUrl: "build/Build/BAT.wasm",
   });
+
+  const handleFullScreen = () => {
+    requestFullscreen(true);
+  }
 
 
 
@@ -76,13 +81,23 @@ export const Home = () => {
             <button className="button" onClick={handleLogoutRedirect}>
               Deslogar
             </button>
+            {isLoaded&&<button className="button" onClick={handleFullScreen}>
+              FullScreen
+            </button>}
             
             <br />
+            {!isLoaded&&<div className="centered-loading">
+              <h3>Carregando Aplicação: {Math.round(loadingProgression*100)}%</h3>
+              <BarLoader color="white"/>
+              </div>
+           }
+            
             <Unity
               unityProvider={unityProvider}
               style={{
                 width: "80vw",
                 height: "40.25vw",
+                visibility: isLoaded ? "visible" : "hidden" 
               }}
             />
           </>
@@ -95,7 +110,8 @@ export const Home = () => {
       <UnauthenticatedTemplate>
         <div className="centered-buttons">
           <img src="/bat_logo.png"/>
-          <button className="button" onClick={handleLoginRedirect}>Login</button>
+          <PulseLoader color="white"/>
+          <h3>Redirecionando para o login azure...</h3>
         </div>
       </UnauthenticatedTemplate>
     </div>

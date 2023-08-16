@@ -40,12 +40,28 @@ footer {
 .centered-buttons{
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
     gap:16px;
     position: fixed;
     top:50%;
     left:50%;
     transform: translate(-50%, -50%);
 
+}
+
+.centered-loading{
+    position: fixed;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    color:white;
+    display: flex;
+    flex-direction: column;
+    gap:6px;
+    justify-content: center;
+    align-items: center;
 }
 
 .button{

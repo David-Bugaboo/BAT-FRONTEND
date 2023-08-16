@@ -53,7 +53,7 @@ export const msalConfig = {
 };
 
 /**
- * 
+ *
  * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
@@ -61,8 +61,8 @@ export const protectedResources = {
   apiTodoList: {
     endpoint: "http://localhost:5000/api/todolist",
     scopes: {
-      read: ["api://c1a254d6-bb21-4b68-aded-186d9fec6fcc/Todolist.Read"],
-      write: ["api://c1a254d6-bb21-4b68-aded-186d9fec6fcc/Todolist.ReadWrite"],
+      read: ["api://c1a254d6-bb21-4b68-aded-186d9fec6fcc/BAT.Read"],
+      write: ["api://c1a254d6-bb21-4b68-aded-186d9fec6fcc/BAT.ReadWrite"],
     },
   },
 };

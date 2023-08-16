@@ -13,6 +13,7 @@
         "react-dom": "^18.1.0",
         "react-icons": "^4.4.0",
         "react-router-dom": "^6.3.0",
+        "react-spinners": "^0.13.8",
         "react-unity-webgl": "^9.4.3"
     },
     "devDependencies": {
