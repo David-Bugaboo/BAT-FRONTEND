@@ -14,7 +14,7 @@ const useAccesToken = (msalRequest) => {
   const [token, setToken] = useState(null);
 
   const { result, error: msalError } = useMsalAuthentication(
-    InteractionType.Popup,
+    InteractionType.Redirect,
     {
       ...msalRequest,
       account: instance.getActiveAccount(),

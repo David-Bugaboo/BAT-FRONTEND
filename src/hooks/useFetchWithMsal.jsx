@@ -15,7 +15,7 @@ const useFetchWithMsal = (msalRequest) => {
   const [data, setData] = useState(null);
 
   const { result, error: msalError } = useMsalAuthentication(
-    InteractionType.Popup,
+    
     {
       ...msalRequest,
       account: instance.getActiveAccount(),

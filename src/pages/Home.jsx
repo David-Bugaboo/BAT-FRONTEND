@@ -4,7 +4,7 @@ import {
 } from "@azure/msal-react";
 import { useMsal } from "@azure/msal-react";
 import { Container, Dropdown, DropdownButton } from "react-bootstrap";
-import { IdTokenData } from "../components/DataDisplay";
+
 import { UnauthenticatedTemplate } from "@azure/msal-react";
 import { loginRequest } from "../authConfig";
 import useAccesToken from "../hooks/useAccessToken";
@@ -15,16 +15,10 @@ import { Game } from "../components/Game";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import useFetchWithMsal from '../hooks/useFetchWithMsal';
 
-/***
- * Component to detail ID token claims with a description for each claim. For more details on ID token claims, please check the following links:
- * ID token Claims: https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens#claims-in-an-id-token
- * Optional Claims:  https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims#v10-and-v20-optional-claims-set
- */
+
 export const Home = () => {
   const { instance } = useMsal();
-  const { error, execute } = useFetchWithMsal({
-    scopes: protectedResources.apiTodoList.scopes.write
-  });
+ 
 
   const { unityProvider, sendMessage, isLoaded } = useUnityContext({
     loaderUrl: "/build/Build/BAT.loader.js",

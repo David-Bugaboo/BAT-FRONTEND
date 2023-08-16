@@ -3,7 +3,7 @@ import { MsalProvider } from "@azure/msal-react";
 
 import { PageLayout } from "./components/PageLayout";
 import { Home } from "./pages/Home";
-import { TodoList } from "./pages/TodoList";
+
 
 import "./styles/App.css";
 import { RoutesComponent } from "./routes";
