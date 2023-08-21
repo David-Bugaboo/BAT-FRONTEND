@@ -2,48 +2,128 @@ import {
   AuthenticatedTemplate,
   useMsalAuthentication,
 } from "@azure/msal-react";
-import { useMsal } from "@azure/msal-react";
+import Modal from "react-modal";
+import { useMsal, useAccount } from "@azure/msal-react";
 import { Container, Dropdown, DropdownButton } from "react-bootstrap";
-
+import ReactPlayer from "react-player";
 import { UnauthenticatedTemplate } from "@azure/msal-react";
 import { loginRequest } from "../authConfig";
 import useAccesToken from "../hooks/useAccessToken";
 import { protectedResources } from "../authConfig";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { InteractionType } from "@azure/msal-browser";
 import { Game } from "../components/Game";
 import { Unity, useUnityContext } from "react-unity-webgl";
-import useFetchWithMsal from '../hooks/useFetchWithMsal';
+import me from "../services/me";
 import { BarLoader, PulseLoader } from "react-spinners";
-
+import { CButton, CProgress } from "@coreui/react";
+import axios from "axios";
+import { api } from "../services/API";
+import markWatched from "../services/markWatched";
+import ReactiveButton from "reactive-button";
 
 export const Home = () => {
-  const { instance } = useMsal();
- 
+  const { instance, accounts } = useMsal();
+  const account = useAccount(accounts[0]);
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [videoTime, setVideoTime] = useState(0);
+  const [token, setToken] = useState(null);
+  const [video, setVideo] = useState(null);
+  const [watched, setWatched] = useState(null);
 
-  const { unityProvider, sendMessage, isLoaded, requestFullscreen, loadingProgression } = useUnityContext({
+  const handleSetVideo = useCallback(async (video) => {
+    setVideo(video);
+    const { watchedVideos } = await me();
+    if (watchedVideos.find((watchedVideo) => watchedVideo === video)) {
+      setCloseVideo(false);
+      setWatched(false);
+    }
+
+    setIsOpen(true);
+  }, []);
+
+  const customStyles = {
+    content: {
+      top: "50%",
+      display: "flex",
+      flexDirection: "column",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      marginRight: "-50%",
+      transform: "translate(-50%, -50%)",
+      height: "auto",
+      width: "55vw",
+      backgroundColor: "unset",
+      border: "unset",
+    },
+    overlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.8)",
+    },
+  };
+  const [closeVideo, setCloseVideo] = useState(false);
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  const {
+    unityProvider,
+    sendMessage,
+    isLoaded,
+    requestFullscreen,
+    loadingProgression,
+    addEventListener,
+    removeEventListener,
+  } = useUnityContext({
     loaderUrl: "/build/Build/BAT.loader.js",
     dataUrl: "/build/Build/BAT.data",
     frameworkUrl: "build/Build/BAT.framework.js",
     codeUrl: "build/Build/BAT.wasm",
   });
 
+  useEffect(() => {
+    addEventListener("OpenVideo", handleSetVideo);
+    return () => {
+      removeEventListener("OpenVideo", handleSetVideo);
+    };
+  }, [addEventListener, removeEventListener, handleSetVideo]);
+
   const handleFullScreen = () => {
     requestFullscreen(true);
-  }
+  };
 
-
+  useEffect(() => {
+    const getToken = async () => {
+      await instance.initialize();
+      const response = await instance.acquireTokenSilent({
+        ...loginRequest,
+        account,
+      });
+      setToken(response.accessToken);
+    };
+    getToken();
+  }, [account]);
 
   useEffect(() => {
     if (isLoaded) {
+      console.log("accessToken:", token);
       const params = {
-        accessToken: result.accessToken,
-        baseURL: "https://tiny-puce-cobra-wrap.cyclic.app/api/"
-      }
-      console.log(result.accessToken);
+        accessToken: token,
+        baseURL: "https://bat-prod-api-bf12b0d555f9.herokuapp.com/api/",
+      };
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       sendMessage("Login", "SetApiData", JSON.stringify(params));
     }
   }, [isLoaded]);
+
+  useEffect(() => {}, []);
 
   const activeAccount = instance.getActiveAccount();
   const { result, error: msalError } = useMsalAuthentication(
@@ -55,14 +135,6 @@ export const Home = () => {
     }
   );
 
-  const handleMe = async () => {
-    const res = await execute("GET", "https://tiny-puce-cobra-wrap.cyclic.app/api/me")
-    console.log(res)
-  }
-
-
-
-
   const handleLogoutRedirect = () => {
     instance.logoutRedirect({
       account: instance.getActiveAccount(),
@@ -72,45 +144,100 @@ export const Home = () => {
     instance.loginRedirect(loginRequest).catch((error) => console.log(error));
   };
 
+  const handleVideoProgress = (played) => {
+    setVideoTime(played * 100);
+    if (played > 0.5) setCloseVideo(true);
+  };
+
   return (
     <div className="homescreen">
       <AuthenticatedTemplate>
         <div className="centered-game">
-        {activeAccount ? (
-          <>
-            <button className="button" onClick={handleLogoutRedirect}>
-              Deslogar
-            </button>
-            {isLoaded&&<button className="button" onClick={handleFullScreen}>
-              FullScreen
-            </button>}
-            
-            <br />
-            {!isLoaded&&<div className="centered-loading">
-              <h3>Carregando Aplicação: {Math.round(loadingProgression*100)}%</h3>
-              <BarLoader color="white"/>
-              </div>
-           }
-            
-            <Unity
-              unityProvider={unityProvider}
-              style={{
-                width: "80vw",
-                height: "40.25vw",
-                visibility: isLoaded ? "visible" : "hidden" 
-              }}
-            />
-          </>
-        ) : (
-          <button onClick={handleLoginRedirect}>Sign in</button>
-        )}
+          {activeAccount ? (
+            <>
+              <button className="button" onClick={handleLogoutRedirect}>
+                Deslogar
+              </button>
+              {isLoaded && (
+                <button className="button" onClick={handleFullScreen}>
+                  FullScreen
+                </button>
+              )}
+              <button className="button" onClick={openModal}>
+                Abrir Video
+              </button>
+
+              <br />
+              {!isLoaded && (
+                <div className="centered-loading">
+                  <h3>
+                    Carregando Aplicação: {Math.round(loadingProgression * 100)}
+                    %
+                  </h3>
+                  <BarLoader color="white" />
+                </div>
+              )}
+
+              <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={closeModal}
+                style={customStyles}
+                contentLabel="VideoPlayer"
+              >
+                <ReactPlayer
+                  width="100%"
+                  height="100%"
+                  controls={true}
+                  playing={false}
+                  onProgress={(played) => handleVideoProgress(played.played)}
+                  url={`https://simuladorbat.s3.amazonaws.com/videos/${video}`}
+                />
+
+                <CProgress
+                  
+                  onClick={async () => {
+                    if (watched) {
+                      sendMessage("Video", "EndWatchingVideo");
+                      setIsOpen(false);
+                    } else {
+                      try {
+                        const response = await markWatched(
+                          video,
+                          instance.getActiveAccount().username
+                        );
+                        console.log(response);
+                        sendMessage("Video", "EndWatchingVideo");
+                        setIsOpen(false);
+                      } catch (e) {
+                        sendMessage("Video", "EndWatchingVideo");
+                        console.log(e);
+                      }
+                    }
+                  }}
+                  value={closeVideo ? 100 : videoTime * 2}
+                >
+                  {closeVideo ? "Prosseguir" : "Aguarde..."}
+                </CProgress>
+              </Modal>
+
+              <Unity
+                unityProvider={unityProvider}
+                style={{
+                  width: "70vw",
+                  height: "70vh",
+                  visibility: isLoaded ? "visible" : "hidden",
+                }}
+              />
+            </>
+          ) : (
+            <button onClick={handleLoginRedirect}>Sign in</button>
+          )}
         </div>
-        
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
         <div className="centered-buttons">
-          <img src="/bat_logo.png"/>
-          <PulseLoader color="white"/>
+          <img src="/bat_logo.png" />
+          <PulseLoader color="white" />
           <h3>Redirecionando para o login azure...</h3>
         </div>
       </UnauthenticatedTemplate>
