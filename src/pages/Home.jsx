@@ -45,6 +45,13 @@ export const Home = () => {
     setIsOpen(true);
   }, []);
 
+  const handleLogout = useCallback(async ()=>{
+    instance.logoutRedirect({
+      account: instance.getActiveAccount(),
+    });
+  },[])
+  
+
   const customStyles = {
     content: {
       top: "50%",
@@ -91,10 +98,13 @@ export const Home = () => {
 
   useEffect(() => {
     addEventListener("OpenVideo", handleSetVideo);
+    addEventListener("Logout", handleLogout);
+    
     return () => {
       removeEventListener("OpenVideo", handleSetVideo);
+      removeEventListener("Logout", handleLogout);
     };
-  }, [addEventListener, removeEventListener, handleSetVideo]);
+  }, [addEventListener, removeEventListener, handleSetVideo, handleLogout]);
 
   const handleFullScreen = () => {
     requestFullscreen(true);
@@ -158,18 +168,6 @@ export const Home = () => {
         <div className="centered-game">
           {activeAccount ? (
             <>
-              <button className="button" onClick={handleLogoutRedirect}>
-                Deslogar
-              </button>
-              {isLoaded && (
-                <button className="button" onClick={handleFullScreen}>
-                  FullScreen
-                </button>
-              )}
-              <button className="button" onClick={openModal}>
-                Abrir Video
-              </button>
-
               <br />
               {!isLoaded && (
                 <div className="centered-loading">
@@ -253,8 +251,8 @@ export const Home = () => {
               <Unity
                 unityProvider={unityProvider}
                 style={{
-                  width: "70vw",
-                  height: "70vh",
+                  width: "100vw",
+                  height: "100vh",
                   visibility: isLoaded ? "visible" : "hidden",
                 }}
               />
