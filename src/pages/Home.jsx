@@ -32,14 +32,14 @@ export const Home = () => {
   const [watched, setWatched] = useState(null);
 
   const handleSetVideo = useCallback(async (video) => {
+    setCloseVideo(false);
+    setWatched(false);
+    setVideoTime(0);
     setVideo(video);
     const { watchedVideos } = await me();
     if (watchedVideos.find((watchedVideo) => watchedVideo === video)) {
       setCloseVideo(true);
       setWatched(true);
-    } else {
-      setCloseVideo(false);
-      setWatched(false);
     }
 
     setIsOpen(true);
