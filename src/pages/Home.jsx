@@ -35,6 +35,9 @@ export const Home = () => {
     setVideo(video);
     const { watchedVideos } = await me();
     if (watchedVideos.find((watchedVideo) => watchedVideo === video)) {
+      setCloseVideo(true);
+      setWatched(true);
+    } else {
       setCloseVideo(false);
       setWatched(false);
     }
@@ -180,7 +183,28 @@ export const Home = () => {
 
               <Modal
                 isOpen={modalIsOpen}
-                onRequestClose={closeModal}
+                onRequestClose={async () => {
+                  if (!closeVideo) {
+                    return;
+                  }
+                  if (watched) {
+                    sendMessage("Video", "EndWatchingVideo");
+                    setIsOpen(false);
+                  } else {
+                    try {
+                      const response = await markWatched(
+                        video,
+                        instance.getActiveAccount().username
+                      );
+                      console.log(response);
+                      sendMessage("Video", "EndWatchingVideo");
+                      setIsOpen(false);
+                    } catch (e) {
+                      sendMessage("Video", "EndWatchingVideo");
+                      console.log(e);
+                    }
+                  }
+                }}
                 style={customStyles}
                 contentLabel="VideoPlayer"
               >
@@ -193,9 +217,11 @@ export const Home = () => {
                   url={`https://simuladorbat.s3.amazonaws.com/videos/${video}`}
                 />
 
-                <CProgress
-                  
+                <div
                   onClick={async () => {
+                    if (!closeVideo) {
+                      return;
+                    }
                     if (watched) {
                       sendMessage("Video", "EndWatchingVideo");
                       setIsOpen(false);
@@ -214,10 +240,14 @@ export const Home = () => {
                       }
                     }
                   }}
-                  value={closeVideo ? 100 : videoTime * 2}
+                  style={{ cursor: "pointer" }}
                 >
-                  {closeVideo ? "Prosseguir" : "Aguarde..."}
-                </CProgress>
+                  <CProgress
+                    value={closeVideo || watched ? 100 : videoTime * 2}
+                  >
+                    {closeVideo || watched ? "Prosseguir" : "Aguarde..."}
+                  </CProgress>
+                </div>
               </Modal>
 
               <Unity
