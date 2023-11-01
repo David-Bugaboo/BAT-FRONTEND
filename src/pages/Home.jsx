@@ -30,7 +30,7 @@ export const Home = () => {
   const [token, setToken] = useState(null);
   const [video, setVideo] = useState(null);
   const [watched, setWatched] = useState(null);
-
+  console.log(instance)
   const handleSetVideo = useCallback(async (video) => {
     setCloseVideo(false);
     setWatched(false);
@@ -41,17 +41,14 @@ export const Home = () => {
       setCloseVideo(true);
       setWatched(true);
     }
-
     setIsOpen(true);
   }, []);
-
   const handleLogout = useCallback(async ()=>{
     instance.logoutRedirect({
       account: instance.getActiveAccount(),
     });
   },[])
-  
-
+  console.log("Active Account",instance.getActiveAccount())
   const customStyles = {
     content: {
       top: "50%",
@@ -72,15 +69,12 @@ export const Home = () => {
     },
   };
   const [closeVideo, setCloseVideo] = useState(false);
-
   function openModal() {
     setIsOpen(true);
   }
-
   function closeModal() {
     setIsOpen(false);
   }
-
   const {
     unityProvider,
     sendMessage,
@@ -95,7 +89,6 @@ export const Home = () => {
     frameworkUrl: "build/Build/BAT.framework.js",
     codeUrl: "build/Build/BAT.wasm",
   });
-
   useEffect(() => {
     addEventListener("OpenVideo", handleSetVideo);
     addEventListener("Logout", handleLogout);
@@ -105,49 +98,36 @@ export const Home = () => {
       removeEventListener("Logout", handleLogout);
     };
   }, [addEventListener, removeEventListener, handleSetVideo, handleLogout]);
-
   const handleFullScreen = () => {
     requestFullscreen(true);
   };
-
-  useEffect(() => {
-    const getToken = async () => {
-      await instance.initialize();
-      const response = await instance.acquireTokenSilent({
-        ...loginRequest,
-        account,
-      });
-      setToken(response.accessToken);
-    };
-    getToken();
-  }, [account]);
-
   useEffect(() => {
     if (isLoaded) {
-      console.log("accessToken:", token);
-      const params = {
-        accessToken: token,
-        baseURL: "https://bat-prod-api-bf12b0d555f9.herokuapp.com/api/",
-      };
-
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      sendMessage("Login", "SetApiData", JSON.stringify(params));
+      if (result){
+        console.log("account", result.idToken);
+        const params = {
+          accessToken: result.idToken,
+          baseURL: "https://bat-prod-api-bf12b0d555f9.herokuapp.com/api/",
+        };
+  
+        api.defaults.headers.common["Authorization"] = `Bearer ${result.idToken}`;
+  
+        sendMessage("Login", "SetApiData", JSON.stringify(params));
+      }
+      else{
+        location.reload()
+      }
     }
   }, [isLoaded]);
-
   useEffect(() => {}, []);
-
   const activeAccount = instance.getActiveAccount();
   const { result, error: msalError } = useMsalAuthentication(
     InteractionType.Redirect,
     {
-      scopes: protectedResources.apiTodoList.scopes.write,
       account: instance.getActiveAccount(),
       redirectUri: "/redirect",
     }
   );
-
   const handleLogoutRedirect = () => {
     instance.logoutRedirect({
       account: instance.getActiveAccount(),
@@ -156,7 +136,6 @@ export const Home = () => {
   const handleLoginRedirect = () => {
     instance.loginRedirect(loginRequest).catch((error) => console.log(error));
   };
-
   const handleVideoProgress = (played) => {
     setVideoTime(played * 100);
     if (played > 0.5) setCloseVideo(true);
@@ -211,6 +190,7 @@ export const Home = () => {
                   height="100%"
                   controls={true}
                   playing={false}
+                  pip={false}
                   onProgress={(played) => handleVideoProgress(played.played)}
                   url={`https://simuladorbat.s3.amazonaws.com/videos/${video}`}
                 />
@@ -267,6 +247,7 @@ export const Home = () => {
           <img src="/bat_logo.png" />
           <PulseLoader color="white" />
           <h3>Redirecionando para o login azure...</h3>
+          <button onClick={handleLoginRedirect}>login</button>
         </div>
       </UnauthenticatedTemplate>
     </div>
