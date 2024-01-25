@@ -3,12 +3,9 @@ import { MsalProvider } from "@azure/msal-react";
 
 import { PageLayout } from "./components/PageLayout";
 import { Home } from "./pages/Home";
-
-
+import { Helmet } from 'react-helmet';
 import "./styles/App.css";
 import { RoutesComponent } from "./routes";
-
-
 
 /**
  * msal-react is built on the React context API and all parts of your app that require authentication must be
@@ -18,13 +15,13 @@ import { RoutesComponent } from "./routes";
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 const App = ({ instance }) => {
-    return (
-        <MsalProvider instance={instance}>
-            <PageLayout>
-                <RoutesComponent />
-            </PageLayout>
-        </MsalProvider>
-    );
+  return (
+    <MsalProvider instance={instance}>
+      <PageLayout>
+        <RoutesComponent />
+      </PageLayout>
+    </MsalProvider>
+  );
 };
 
 export default App;

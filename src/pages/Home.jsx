@@ -115,7 +115,7 @@ export const Home = () => {
         sendMessage("Login", "SetApiData", JSON.stringify(params));
       }
       else{
-        location.reload()
+        //location.reload()
       }
     }
   }, [isLoaded]);
@@ -247,7 +247,7 @@ export const Home = () => {
           <img src="/bat_logo.png" />
           <PulseLoader color="white" />
           <h3>Redirecionando para o login azure...</h3>
-          <button onClick={handleLoginRedirect}>login</button>
+          
         </div>
       </UnauthenticatedTemplate>
     </div>
