@@ -123,7 +123,7 @@ export const Home = () => {
   useEffect(() => {}, []);
   const activeAccount = instance.getActiveAccount();
   const { result, error: msalError } = useMsalAuthentication(
-    InteractionType.Redirect,
+    InteractionType.Popup,
     {
       account: instance.getActiveAccount(),
       redirectUri: "/redirect",
