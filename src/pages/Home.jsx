@@ -234,12 +234,13 @@ export const Home = () => {
                 style={{
                   width: "100vw",
                   height: "100vh",
+                  paddingTop:'0px',
                   visibility: isLoaded ? "visible" : "hidden",
                 }}
               />
             </>
           ) : (
-            <button onClick={handleLoginRedirect}>Sign in</button>
+            <button>Sign in</button>
           )}
         </div>
       </AuthenticatedTemplate>
