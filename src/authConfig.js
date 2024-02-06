@@ -10,7 +10,7 @@ export const msalConfig = {
     clientCapabilities: ["CP1"], // this lets the resource owner know that this client is capable of handling claims challenge.
   },
   cache: {
-    cacheLocation: "localStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+    cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
     storeAuthStateInCookie: true, // Set this to "true" if you are having issues on IE11 or Edge
   },
   system: {
