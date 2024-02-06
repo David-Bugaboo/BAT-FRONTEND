@@ -30,7 +30,7 @@ export const Home = () => {
   const [token, setToken] = useState(null);
   const [video, setVideo] = useState(null);
   const [watched, setWatched] = useState(null);
-  
+
   const handleSetVideo = useCallback(async (video) => {
     setCloseVideo(false);
     setWatched(false);
@@ -43,12 +43,12 @@ export const Home = () => {
     }
     setIsOpen(true);
   }, []);
-  const handleLogout = useCallback(async ()=>{
+  const handleLogout = useCallback(async () => {
     instance.logoutRedirect({
       account: instance.getActiveAccount(),
     });
-  },[])
-  console.log("Active Account",instance.getActiveAccount())
+  }, []);
+  console.log("Active Account", instance.getActiveAccount());
   const customStyles = {
     content: {
       top: "50%",
@@ -92,7 +92,7 @@ export const Home = () => {
   useEffect(() => {
     addEventListener("OpenVideo", handleSetVideo);
     addEventListener("Logout", handleLogout);
-    
+
     return () => {
       removeEventListener("OpenVideo", handleSetVideo);
       removeEventListener("Logout", handleLogout);
@@ -103,18 +103,19 @@ export const Home = () => {
   };
   useEffect(() => {
     if (isLoaded) {
-      if (result){
+      if (result) {
         console.log("account", result.idToken);
         const params = {
           accessToken: result.idToken,
           baseURL: "https://bat-prod-api-bf12b0d555f9.herokuapp.com/api/",
         };
-  
-        api.defaults.headers.common["Authorization"] = `Bearer ${result.idToken}`;
-  
+
+        api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${result.idToken}`;
+
         sendMessage("Login", "SetApiData", JSON.stringify(params));
-      }
-      else{
+      } else {
         //location.reload()
       }
     }
@@ -125,7 +126,7 @@ export const Home = () => {
     InteractionType.Redirect,
     {
       account: instance.getActiveAccount(),
-      redirectUri: "/",
+      redirectUri: "/redirect",
     }
   );
   const handleLogoutRedirect = () => {
@@ -247,7 +248,6 @@ export const Home = () => {
           <img src="/bat_logo.png" />
           <PulseLoader color="white" />
           <h3>Redirecionando para o login azure...</h3>
-          
         </div>
       </UnauthenticatedTemplate>
     </div>
