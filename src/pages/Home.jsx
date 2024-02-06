@@ -30,7 +30,7 @@ export const Home = () => {
   const [token, setToken] = useState(null);
   const [video, setVideo] = useState(null);
   const [watched, setWatched] = useState(null);
-  console.log(instance)
+  
   const handleSetVideo = useCallback(async (video) => {
     setCloseVideo(false);
     setWatched(false);
@@ -125,7 +125,7 @@ export const Home = () => {
     InteractionType.Redirect,
     {
       account: instance.getActiveAccount(),
-      redirectUri: "/redirect",
+      redirectUri: "/",
     }
   );
   const handleLogoutRedirect = () => {
